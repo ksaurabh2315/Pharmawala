@@ -1,110 +1,110 @@
 <?php
-session_start();
-if (isset($_SESSION["uid"])){
-    header("location:profile.php");
+include 'connection.php';
+if(isset($_POST['login'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $position = $_POST['position'];
+    switch ($position) {
+        case 'Admin':
+            $result = mysqli_query($con, "SELECT id, username FROM admin WHERE username='$username' AND password='$password'");
+            $row = mysqli_fetch_array($result);
+            if ($row > 0) {
+                session_start();
+                $_SESSION['id'] = $row[0];
+                $_SESSION['username'] = $row[1];
+                $_SESSION['password'] = $row[2];
+                header("location:dashboard.php");
+            }
+            else {
+                echo '<script>alert ("check your usename or password")</script>';
+            }
+            break;
+        case 'Pharmacist':
+            $result = mysqli_query($con, "SELECT id, username FROM pharmacist_login WHERE username='$username' AND password='$password'");
+            $row = mysqli_fetch_array($result);
+            if ($row > 0) {
+                session_start();
+                $_SESSION['id'] = $row[0];
+                $_SESSION['username'] = $row[1];
+                $_SESSION['password'] = $row[2];
+                header("location:pharmacist.php");
+            } else {
+                echo '<script>alert ("check your usename or password")</script>';
+            }
+            break;
+        case 'Cashier':
+            $result = mysqli_query($con, "SELECT cashier_id, first_name,last_name,staff_id,username FROM cashier WHERE username='$username' AND password='$password'");
+            $row = mysqli_fetch_array($result);
+            if ($row > 0) {
+                session_start();
+                $_SESSION['cashier_id'] = $row[0];
+                $_SESSION['first_name'] = $row[1];
+                $_SESSION['last_name'] = $row[2];
+                $_SESSION['staff_id'] = $row[3];
+                $_SESSION['username'] = $row[4];
+                header("location:http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/cashier.php");
+            } else {
+                echo '<script>alert ("check your usename or password")</script>';
+            }
+            break;
+
+    }
 }
-?>
+echo <<<LOGIN
 
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>VK PHARMACY</title>
-
+    <title>Form</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-    <!-- jQuery library -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-    <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="main.js"></script>
-    <script src="js/jquery.js"></script>
 </head>
-<body>
-<div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a href="index.php" class="navbar-brand">VK Pharmacy</a>
-        </div>
-        <ul class="nav navbar-nav">
-            <li><a href="index.php"><span class="glyphicon glyphicon-home"></span>Home</a> </li>
-            <li><a href="#"><span class="glyphicon glyphicon-modal-window"></span>Products</a> </li>
-            <li style="width:300px;left: 10px;top: 10px; "><input type="text" class="form-control" id="search"></li>
-            <li style="top:10px;left: 20px;"><button class="btn btn-primary" id="search_btn">Search</button></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-            <li><a href="#"  class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-shopping-cart"></span>Cart<span class="badge">0</span></a>
-            <div class="dropdown-menu" style="width: 400px">
-                <div class="panel panel-success">
-                    <div class="panel-heading">
-                        <div class="row">
-                            <div class="col-md-3">S No.</div>
-                            <div class="col-md-3">Image</div>
-                            <div class="col-md-3">Name</div>
-                            <div class="col-md-3">Price</div>
-                        </div>
-                    </div>
-                    <div class="panel-body"></div>
-                    <div class="panel-footer"></div>
-                </div>
-            </div>
-            </li>
-            <li><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span>SignIn</a>
-            <ul class="dropdown-menu">
-                <div style="width: 300px">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading">LOGIN</div>
-                        <div class="panel-heading">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" required/>
-                            <label for="email">Password</label>
-                            <input type="password" class="form-control" id="password" required/>
-                            <p><br/></p>
-                            <a href="#" style="color: white;list-style: none;">Forgotten Passowrd</a><input type="submit" class="btn btn-success" style="float: right;" id="login" value="Login">
+<body background="img/medicine-pills_00408310.jpg" style=" background-attachment: fixed; background-size: cover">
+<div class="container">
+    <h2 style="padding-left: 400px; padding-top: 200px;">LogIn</h2>
+    <form class="form-horizontal" style="padding-top: 10px; padding-left: 400px;" method="post">
 
-                        </div>
-                        <div class="panel-footer" id="e_msg"></div>
-                    </div>
-                </div>
-            </ul>
-            </li>
-            <li><a href="customer_registration.php"><span class="glyphicon glyphicon-user"></span>SignUp</a> </li>
-        </ul>
-    </div>
-</div>
-
-<p><br/></p>
-<p><br/></p>
-<p><br/></p>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-2">
-            <div id="get_category">
-
-            </div>
-
-            <div id="get_brand">
-
-            </div>
-
-        </div>
-        <div class="col-md-8">
-            <div class="row">
-                <div class="col-md-12" id="product_msg"></div>
-            </div>
-            <div class="panel panel-info">
-                <div class="panel-heading">Products</div>
-                <div class="panel-body">
-                    <div id="get_product">
-
-                    </div>
-
-                </div>
-                <div class="panel-footer">&copy; 2018</div>
+        <div class="form-group">
+            <div class="col-sm-6">
+                <input type="text" class="form-control" id="name" placeholder="User Name" name="username">
             </div>
         </div>
-        <div class="col-md-1"></div>
-    </div>
+
+        <div class="form-group">
+            <div class="col-sm-6">
+                <input type="password" class="form-control" id="pwd" placeholder="Password" name="password">
+            </div>
+        </div>
+		
+		<div class="form-group">
+		<div class="col-sm-6">
+		<select name="position" style="width: 354px; height: 35px; border-radius: 5px; padding: 8px;text-align: center;border-color: gainsboro">
+		<option >--Select position--</option>
+			<option>Admin</option>
+			<option>Pharmacist</option>
+			<option>Cashier</option>
+			
+			</select>
+			</div>
+			</div>
+
+        <div class="form-group">
+            <div class="col-sm-6">
+                <button type="submit" class="btn btn-default" name="login">Submit</button>
+            </div>
+        </div>
+    </form>
+
+
 </div>
 </body>
 </html>
+
+LOGIN;
+?>
+<!--https://www.netmeds.com-->
+
+<!--https://www.medplusmart.com/-->
